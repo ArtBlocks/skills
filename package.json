@@ -1,0 +1,14 @@
+{
+  "name": "artblocks-skills",
+  "version": "1.0.0",
+  "description": "Agent skills for the Art Blocks MCP server",
+  "keywords": ["artblocks", "cursor", "skills", "mcp", "ai", "agent"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArtBlocks/skills.git"
+  }
+}
