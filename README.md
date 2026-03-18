@@ -27,8 +27,22 @@ Cursor will prompt you to authenticate via OAuth the first time a tool is called
 **Claude Code** — run once in your terminal:
 
 ```bash
-claude mcp add artblocks-mcp https://mcp.artblocks.io/mcp
+claude mcp add --transport http artblocks-mcp https://mcp.artblocks.io/mcp
 ```
+
+**Claude Desktop** — open **Settings → Connectors**, click **Add connector**, and paste `https://mcp.artblocks.io/mcp`.
+
+**ChatGPT** — requires Pro or Plus with Developer Mode. Go to **Settings → Advanced → Connectors**, create a custom connector with URL `https://mcp.artblocks.io/mcp`.
+
+**Windsurf** — open Command Palette → **"Windsurf: Configure MCP Servers"** and add the same `mcp.json` config as Cursor above.
+
+**Codex** — run once in your terminal:
+
+```bash
+codex mcp add --transport http artblocks-mcp https://mcp.artblocks.io/mcp
+```
+
+For full setup details, troubleshooting, and OAuth reference, see the [Art Blocks MCP docs](https://docs.artblocks.io/mcp-server/quick-start/).
 
 ### 2. Install the skills
 
@@ -86,6 +100,8 @@ Skills work with any agent that supports the [open agent skills spec](https://gi
 | Cursor | ✅ | ✅ |
 | Claude Code | ✅ | ✅ |
 | Claude Desktop | ✅ | — |
+| ChatGPT | ✅ | — |
+| Windsurf | ✅ | ✅ |
 | Codex | ✅ | ✅ |
 
 ---
