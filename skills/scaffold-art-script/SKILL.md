@@ -46,10 +46,11 @@ When a user has an existing piece to convert to Art Blocks format:
 **Conversion checklist:**
 - Replace `Math.random()` with hash-based PRNG derived from `tokenData.hash`
 - Replace hardcoded canvas dimensions with `window.innerWidth` / `window.innerHeight`
-- Remove interactive controls (keyboard/mouse UI) that affect visual output
-- Remove any time-based variation (`Date.now()`, `setTimeout` affecting visuals)
-- Extract visual traits into `window.$features` (optional but recommended for reveals)
-- Verify determinism: same `tokenData.hash` must always produce identical output
+- Ensure the **initial render** is deterministic from the hash alone — same hash must always produce the same initial visual output
+- Interactive elements (mouse, keyboard, touch) are allowed and encouraged, but must not change the initial render. Interaction should only modify the view *after* the artwork has loaded deterministically.
+- Remove any time-based variation (`Date.now()`, `setTimeout`) that affects the initial render (time-based animation after load is fine)
+- Extract visual traits into `window.$features` (optional but recommended for reveals) — features must be set synchronously before or during initial render
+- Verify determinism: reload the page with the same `tokenData.hash` and confirm identical initial output
 
 ## When to Enable Each Flag
 

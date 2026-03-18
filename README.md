@@ -27,8 +27,22 @@ Cursor will prompt you to authenticate via OAuth the first time a tool is called
 **Claude Code** — run once in your terminal:
 
 ```bash
-claude mcp add artblocks-mcp https://mcp.artblocks.io/mcp
+claude mcp add --transport http artblocks-mcp https://mcp.artblocks.io/mcp
 ```
+
+**Claude Desktop** — open **Settings → Connectors**, click **Add connector**, and paste `https://mcp.artblocks.io/mcp`.
+
+**ChatGPT** — requires Pro or Plus with Developer Mode. Go to **Settings → Advanced → Connectors**, create a custom connector with URL `https://mcp.artblocks.io/mcp`.
+
+**Windsurf** — open Command Palette → **"Windsurf: Configure MCP Servers"** and add the same `mcp.json` config as Cursor above.
+
+**Codex** — run once in your terminal:
+
+```bash
+codex mcp add --transport http artblocks-mcp https://mcp.artblocks.io/mcp
+```
+
+For full setup details, troubleshooting, and OAuth reference, see the [Art Blocks MCP docs](https://docs.artblocks.io/mcp-server/quick-start/).
 
 ### 2. Install the skills
 
@@ -58,6 +72,8 @@ Skills activate automatically — just ask naturally in chat:
 > *"Find all fully on-chain Art Blocks projects mintable on Base"*
 > *"Help me convert my p5.js sketch to Art Blocks format"*
 > *"Build a mint transaction for project 0xa7d8...d270-12 on Arbitrum"*
+> *"Show me all projects by Tyler Hobbs"*
+> *"What does snowfro's Art Blocks portfolio look like?"*
 
 ---
 
@@ -65,10 +81,11 @@ Skills activate automatically — just ask naturally in chat:
 
 | Skill | Use when... |
 |-------|-------------|
-| [`query-artblocks-data`](./skills/query-artblocks-data/SKILL.md) | Fetching projects, tokens, artists, sales, or traits via GraphQL |
-| [`discover-artblocks-projects`](./skills/discover-artblocks-projects/SKILL.md) | Browsing or searching Art Blocks collections — what's live, dropping soon, or in a wallet |
-| [`get-token-metadata`](./skills/get-token-metadata/SKILL.md) | Looking up a specific token's traits, media URLs, owner, hash, and project context |
-| [`mint-artblocks-token`](./skills/mint-artblocks-token/SKILL.md) | Minting a token — pricing, minter types, allowlists, building transactions |
+| [`discover-artblocks-projects`](./skills/discover-artblocks-projects/SKILL.md) | Browsing, searching, or filtering Art Blocks projects — what's live, dropping soon, in a wallet, or matching a tag/price range |
+| [`get-artist`](./skills/get-artist/SKILL.md) | Looking up an artist and exploring their body of work across Art Blocks |
+| [`query-artblocks-data`](./skills/query-artblocks-data/SKILL.md) | Custom GraphQL queries for data not covered by domain-specific tools (sales history, aggregations, complex joins) |
+| [`get-token-metadata`](./skills/get-token-metadata/SKILL.md) | Looking up a specific token's traits, media URLs, listing info, owner, hash, and project context |
+| [`mint-artblocks-token`](./skills/mint-artblocks-token/SKILL.md) | Minting a token — pricing, minter types, allowlists, multi-wallet eligibility, building transactions |
 | [`scaffold-art-script`](./skills/scaffold-art-script/SKILL.md) | Creating or converting a generative art script for Art Blocks |
 | [`configure-postparams`](./skills/configure-postparams/SKILL.md) | Setting on-chain PostParam values on a minted token |
 
@@ -83,6 +100,8 @@ Skills work with any agent that supports the [open agent skills spec](https://gi
 | Cursor | ✅ | ✅ |
 | Claude Code | ✅ | ✅ |
 | Claude Desktop | ✅ | — |
+| ChatGPT | ✅ | — |
+| Windsurf | ✅ | ✅ |
 | Codex | ✅ | ✅ |
 
 ---
