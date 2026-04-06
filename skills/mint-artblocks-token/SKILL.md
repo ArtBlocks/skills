@@ -15,9 +15,13 @@ Use `discover_projects` to find the project ID from a name or search term. To fi
 
 ## Minting Workflow
 
-### Step 1 — Understand the minter
+### Step 1 — Evaluate the project
 
-Call `get_project_minter_config` first. Returns:
+Before committing to a primary mint, compare the mint price against the secondary market floor. `discover_live_mints` and `discover_projects` both return a `lowestListing` field — the lowest active secondary listing in ETH. If `lowestListing` is below the mint price, buying on secondary may be cheaper; surface this to the user before proceeding.
+
+### Step 2 — Understand the minter
+
+Call `get_project_minter_config`. Returns:
 
 - Minter type (set price, Dutch auction, allowlist, RAM, etc.)
 - Current price and currency (ETH or ERC-20)
@@ -25,7 +29,7 @@ Call `get_project_minter_config` first. Returns:
 - Auction timing (start/end, price decay curve for DA minters)
 - Allowlist details (for gated minters)
 
-### Step 2 — Check eligibility (gated projects only)
+### Step 3 — Check eligibility (gated projects only)
 
 If the minter type is `MinterMerkleV5` or `MinterHolderV5`, call `check_allowlist_eligibility` before proceeding.
 
@@ -40,7 +44,7 @@ Accepts a `walletAddress` (including ENS names) or an Art Blocks `username`. Whe
 
 Returns: eligibility status, gate type, which wallets are eligible (for multi-wallet profiles), and for holder-gated minters, which projects the wallet must hold tokens from.
 
-### Step 3 — Build the transaction
+### Step 4 — Build the transaction
 
 `build_purchase_transaction` currently supports **MinterSetPriceV5 (ETH)** only.
 

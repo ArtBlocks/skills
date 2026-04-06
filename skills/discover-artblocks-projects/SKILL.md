@@ -148,6 +148,22 @@ Example: `0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270-0`
 
 Use this directly with `get_project`, `get_project_minter_config`, `build_purchase_transaction`, and `check_allowlist_eligibility`.
 
+## Portfolio + Live Mint Cross-Reference
+
+When a collector asks what they own, cross-reference their holdings with live mints to surface relevant connections:
+
+1. Call `get_wallet_tokens` to load their collection
+2. Call `discover_live_mints` to get currently mintable projects
+3. Look for overlaps: same artist, same tags, or direct project matches
+4. Surface actionable insights:
+   - "You own Friendship Bracelets, and it still has X remaining."
+   - "You own work by [Artist]. Their latest project is live now."
+   - Use `get_artist` to see the artist's full catalog, including sold-out secondary prices
+
+## Secondary Floor vs Mint Price
+
+`discover_live_mints`, `discover_projects`, and `get_project` all return a `lowestListing` field — the lowest active secondary market listing in ETH. When showing mintable projects, compare this against the mint price. If the secondary floor is below mint price, note this to the user — it may be cheaper to buy on secondary.
+
 ## Following Up with GraphQL
 
 The domain-specific tools above handle most use cases. For deeper data (sales history, aggregations, custom joins), use the GraphQL tools (`graphql_query`, `build_query`, `explore_table`) as an escape hatch.
