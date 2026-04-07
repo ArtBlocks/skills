@@ -24,7 +24,7 @@ Use `scaffold_artblocks_project` to generate a ready-to-run `index.html` + start
 | Param                    | Options / Notes                                                                                   |
 |--------------------------|---------------------------------------------------------------------------------------------------|
 | `scriptType`             | `"js"` (vanilla), `"p5js"`, `"threejs"` — **required**                                          |
-| `dependencyVersion`      | p5.js: `"1.0.0"` or `"1.9.0"` (default). Three.js: `"0.124.0"`, `"0.160.0"`, `"0.167.0"` (default). Ignored for `"js"`. |
+| `dependencyVersion`      | p5.js: `"1.0.0"`, `"1.9.0"`, or `"1.11.11"` (default). Three.js: `"0.124.0"`, `"0.160.0"`, `"0.167.0"` (default). Ignored for `"js"`. |
 | `includePostParams`      | `true` — adds ONCHAIN/PostParams (PMP) stubs in `tokenData` and example usage                    |
 | `includeFlexDependencies`| `true` — adds IPFS and Arweave dependency stubs with usage patterns                              |
 | `includeFeatures`        | `true` — adds `window.$features` trait assignment stub                                           |
