@@ -88,6 +88,7 @@ Skills activate automatically — just ask naturally in chat:
 | [`mint-artblocks-token`](./skills/mint-artblocks-token/SKILL.md) | Minting a token — pricing, minter types, allowlists, multi-wallet eligibility, building transactions |
 | [`scaffold-art-script`](./skills/scaffold-art-script/SKILL.md) | Creating or converting a generative art script for Art Blocks |
 | [`configure-postparams`](./skills/configure-postparams/SKILL.md) | Setting on-chain PostParam values on a minted token |
+| [`develop-postparam-hooks`](./skills/develop-postparam-hooks/SKILL.md) | Writing, testing, deploying, and registering custom PostParam hook contracts (augment and/or configure hooks) in Solidity |
 
 ---
 
