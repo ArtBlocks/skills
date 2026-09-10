@@ -153,6 +153,62 @@ a real Art Blocks core *and* has opted this project in. Both templates do it.
   transfer, forever. Storage writes dominate. An expensive hook makes the token
   permanently more expensive to trade.
 
+### If the token's image must change on transfer
+
+Running a hook does not re-render the token. The rendering pipeline is not
+watching for hook calls, so the stored image and features stay as they were.
+
+This bites exactly the projects most likely to want a hook. If the artwork
+reacts to its owner — through the `InjectTokenOwner` augment hook, or your own
+hook's state — the live generator is correct the moment the token transfers,
+while the thumbnail on artblocks.io and in marketplaces still shows the previous
+owner's output.
+
+Writing a **PostParam** is the signal that does trigger a re-render, along with
+a features recompute. So write one from inside `_onTokenTransfer`:
+
+```solidity
+IPMPV0 constant PMP = IPMPV0(0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14);
+
+function _onTokenTransfer(
+    address coreContract,
+    uint256 tokenId,
+    address from,
+    address to,
+    address /* operator */
+) internal override {
+    _onlyConfiguredForProject(coreContract, tokenId / ONE_MILLION);
+    if (from == to) return;
+
+    // Any value the pipeline has not seen before will do. A timestamp needs
+    // no extra storage of its own and is useful to the generator besides.
+    IPMPV0.PMPInput[] memory inputs = new IPMPV0.PMPInput[](1);
+    inputs[0] = IPMPV0.PMPInput({
+        key: "lastTransferAt",
+        configuredParamType: IPMPV0.ParamType.Timestamp,
+        configuredValue: bytes32(block.timestamp),
+        configuringArtistString: false,
+        configuredValueString: ""
+    });
+
+    PMP.configureTokenParams(coreContract, tokenId, inputs);
+}
+```
+
+For that call to be authorized, the artist configures the parameter with the
+`Address` authorization option and sets its authorized address to the hook
+contract. `AuthOption.Address` exists precisely for programmatic writers like
+this; the combined options (`TokenOwnerAndAddress`, and so on) let a collector
+keep write access alongside the hook.
+
+Two things make this viable or not:
+
+- **It is allowed.** The core blocks reentrant mints and transfers, not calls to
+  other contracts, so writing to PMPV0 during the hook goes through.
+- **It doubles the storage cost.** Your hook's write plus the PostParam write,
+  on every transfer, for the life of the project. If the image does not actually
+  depend on the transfer, do not do this.
+
 ## Step 4 — Test
 
 The interfaces are small enough that unit tests need no fork.
@@ -266,6 +322,9 @@ configurable until the artist locks explicitly.
 - **Setting a hook does not backfill.** It only sees transfers after it is
   configured.
 - **Clearing a hook does not undo it.** State already written stays written.
+- **A hook does not re-render the token.** If the image depends on the transfer,
+  the hook must also write a PostParam — see
+  [If the token's image must change on transfer](#if-the-tokens-image-must-change-on-transfer).
 - **Read `transfer_hook_configuration_locked`, not `transfer_hook_locked`.** The
   raw column is `null` rather than `false` while unlocked and ignores the
   automatic lock.
