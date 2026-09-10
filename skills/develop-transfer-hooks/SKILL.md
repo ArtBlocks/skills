@@ -180,6 +180,11 @@ function _onTokenTransfer(
     _onlyConfiguredForProject(coreContract, tokenId / ONE_MILLION);
     if (from == to) return;
 
+    // Skip mints. A freshly minted token is rendered by the pipeline as part
+    // of minting, so there is nothing to invalidate — and keeping the mint
+    // path out of this call keeps it out of every way the call can fail.
+    if (from == address(0)) return;
+
     // Any value the pipeline has not seen before will do. A timestamp needs
     // no extra storage of its own and is useful to the generator besides.
     IPMPV0.PMPInput[] memory inputs = new IPMPV0.PMPInput[](1);
@@ -191,7 +196,8 @@ function _onTokenTransfer(
         configuredValueString: ""
     });
 
-    PMP.configureTokenParams(coreContract, tokenId, inputs);
+    // Never let the PostParam write take the transfer down with it.
+    try PMP.configureTokenParams(coreContract, tokenId, inputs) {} catch {}
 }
 ```
 
@@ -201,7 +207,25 @@ contract. `AuthOption.Address` exists precisely for programmatic writers like
 this; the combined options (`TokenOwnerAndAddress`, and so on) let a collector
 keep write access alongside the hook.
 
-Two things make this viable or not:
+**The `try`/`catch` is not decoration.** `configureTokenParams` reverts for several reasons that are outside your hook's
+control and can begin applying long after the hook is set — and an uncaught
+revert here freezes every transfer of every token in the project:
+
+- **The artist reconfigures the project's PostParams without this key.** Each
+  project configuration bumps a nonce, and PMPV0 rejects any param whose
+  `highestConfigNonce` is not the current one: *"param not part of most recently
+  configured PMP params"*. This is the likely one. An artist tidying up their
+  parameters months later would silently brick their own collection.
+- **The authorized address is changed, or the param's type is changed.**
+  *"address auth required"*, *"paramType mismatch"*.
+- **A post-config hook is set on the project and reverts.** PMPV0 deliberately
+  propagates that rather than swallowing it.
+
+Catching means a misconfiguration costs a stale thumbnail instead of a frozen
+collection. Verify on staging that the write actually lands — a swallowed error
+is silent by design.
+
+Two more things make this viable or not:
 
 - **It is allowed.** The core blocks reentrant mints and transfers, not calls to
   other contracts, so writing to PMPV0 during the hook goes through.
