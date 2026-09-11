@@ -93,16 +93,24 @@ function configureProjectHooks(
 
 ---
 
-## PMPV0 Deployed Addresses
+## PMP Deployed Addresses
 
-Same address on all chains (deterministic CREATE2 deployment):
+**PMPV1 is current.** PMPV0 is still live and still serves every project already
+on it, so resolve the contract for the project you are targeting rather than
+assuming: a project's PMP is whichever contract its web3call flex dependency
+points at. New projects get PMPV1.
 
-| Chain | Address |
-|---|---|
-| Ethereum mainnet | `0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14` |
-| Sepolia testnet | `0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14` |
-| Arbitrum | `0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14` |
-| Base | `0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14` |
+| Contract | Chains | Address |
+|---|---|---|
+| PMPV1 | mainnet, Arbitrum, Base, Shape, Sepolia (artist staging) | `0x00000000B9D3B2461fcFd5D23FCA65227B770f67` |
+| PMPV1 | Sepolia (dev) | `0xb380B5c5A1d98Ebcc669feF89bCe0B3db1f36292` |
+| PMPV0 | mainnet, Arbitrum, Base, Shape, Sepolia (artist staging) | `0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14` |
+
+PMPV1 shares the `IPMPV0` / `IWeb3Call` ABI exactly, so hooks and bindings work
+against either without change. It differs in enforcing
+`pmpLockedAfterTimestamp` as a **value** lock as well as a configuration lock:
+once it passes, `configureTokenParams` reverts with *"PMP: param is locked"* for
+every party, which makes the Creator Dashboard's "Lock Date" true on chain.
 
 ---
 

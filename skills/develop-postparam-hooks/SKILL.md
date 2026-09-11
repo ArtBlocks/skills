@@ -165,9 +165,10 @@ forge test --fork-url $SEPOLIA_RPC_URL
 ```
 
 ```solidity
-// Uses live PMPV0 at 0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14
-IPMPV0 pmpV0 = IPMPV0(0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14);
-IWeb3Call.TokenParam[] memory params = pmpV0.getTokenParams(coreContract, tokenId);
+// Uses the live PMP. PMPV1 is current; PMPV0 still serves projects already on
+// it, so use whichever the project you are testing against is on.
+IPMPV0 pmp = IPMPV0(0x00000000B9D3B2461fcFd5D23FCA65227B770f67); // PMPV1
+IWeb3Call.TokenParam[] memory params = pmp.getTokenParams(coreContract, tokenId);
 // assert your hook's injected key appears in params
 ```
 
@@ -203,7 +204,7 @@ The Creator Dashboard is the recommended way to attach your hook:
 
 To register programmatically instead, call PMPV0 directly (artist wallet required):
 ```solidity
-IPMPV0(0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14).configureProjectHooks(
+IPMPV0(pmpAddress).configureProjectHooks(
     coreContract,
     projectId,
     IPMPConfigureHook(address(0)),    // pass address(0) if not using configure hook
@@ -211,7 +212,8 @@ IPMPV0(0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14).configureProjectHooks(
 );
 ```
 
-PMPV0 is deployed at the same address on all chains (mainnet, Sepolia, Arbitrum, Base).
+Use the PMP contract the project is on — PMPV1 for anything new, PMPV0 for
+projects already there. Addresses in [reference.md](reference.md#pmp-deployed-addresses).
 
 ## Step 7 — Access injected data in your art script
 

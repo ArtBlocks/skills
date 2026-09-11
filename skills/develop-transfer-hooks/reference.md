@@ -112,7 +112,9 @@ Support cannot be retrofitted. Engine cores are ERC-1167 minimal proxies and the
 implementation address is fixed in the proxy bytecode at deployment, so a
 pre-v3.3 core will never gain hook support.
 
-## Deployed reference hook
+## Deployed reference hooks
+
+### OwnerHistoryTransferHook
 
 `OwnerHistoryTransferHook` — `0x00000000cb60788043f4F779bfC192F1c5bd09FA`, the
 same address on every supported network (Ethereum, Arbitrum, Base, Shape, and
@@ -163,6 +165,50 @@ keeps a real one.
 If a project clears its hook, recording stops; call `ownerOf` on the core for
 the live owner.
 
+### MintTimeAndTransferCountHooks
+
+A combined hook: a transfer hook *and* a PostParams read-augment hook in one
+contract. Records each token's mint timestamp and post-mint transfer count, and
+injects `mintTimestamp`, `secondsSinceMint` (computed at read time) and
+`transferCount` into the token's params.
+
+| Network | Address |
+|---|---|
+| mainnet, arbitrum, base, shape, sepolia-staging | `0x000000002099d6BB23Ebd24aDCbee931ad461a39` |
+| sepolia-dev | `0x2B530627ed72e3F77EAC0d1c8b3904E6d8f67c25` |
+
+Two addresses because it is constructor-bound to a PMP contract, and sepolia-dev
+runs its own PMP instance.
+
+It is also a worked example of the PostParam-write-for-re-render pattern: give
+the project a `transferCount` param with `Address` auth pointing at the hook and
+`pmpLockedAfterTimestamp: 0`, and it writes on each counted transfer. The write
+is `try`/`catch`'d and emits `TransferCountPMPSyncFailed`. If it does what your
+project needs, configure it rather than writing your own.
+
+## PMP contracts
+
+Needed only if your hook writes a PostParam. **PMPV1 is current**; PMPV0 is
+still live and still serves the projects already on it, so resolve the address
+for the project you are targeting rather than assuming — a project's PMP is
+whichever contract its web3call flex dependency points at.
+
+| Contract | Network | Address |
+|---|---|---|
+| PMPV1 | mainnet, arbitrum, base, shape, sepolia-staging | `0x00000000B9D3B2461fcFd5D23FCA65227B770f67` |
+| PMPV1 | sepolia-dev | `0xb380B5c5A1d98Ebcc669feF89bCe0B3db1f36292` |
+| PMPV0 | mainnet, arbitrum, base, shape, sepolia-staging | `0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14` |
+
+PMPV1 shares the `IPMPV0` / `IWeb3Call` ABI exactly, so existing bindings work
+against either. It differs in two ways that matter to a hook author:
+
+- `pmpLockedAfterTimestamp` is enforced as a **value** lock as well as a
+  configuration lock. Once it passes, `configureTokenParams` reverts with
+  *"PMP: param is locked"* for every party — so a param a hook writes to must be
+  configured with `pmpLockedAfterTimestamp: 0`.
+- A locked param definition may be restated in a later `configureProject` call
+  if every artist-configured field is identical.
+
 ## Off-chain data
 
 `projects_metadata` in the Art Blocks GraphQL API:
@@ -188,4 +234,5 @@ block.
 - [`ITransferHook.sol`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/interfaces/v0.8.x/ITransferHook.sol)
 - [`AbstractTransferHook.sol`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/engine/V3/transfer-hooks/AbstractTransferHook.sol)
 - [`OwnerHistoryTransferHook.sol`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/engine/V3/transfer-hooks/OwnerHistoryTransferHook.sol)
+- [`MintTimeAndTransferCountHooks.sol`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/web3call/combined-hooks/MintTimeAndTransferCountHooks.sol)
 - [`IOwnerHistoryTransferHook.sol`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/interfaces/v0.8.x/IOwnerHistoryTransferHook.sol)

@@ -168,7 +168,16 @@ Writing a **PostParam** is the signal that does trigger a re-render, along with
 a features recompute. So write one from inside `_onTokenTransfer`:
 
 ```solidity
-IPMPV0 constant PMP = IPMPV0(0x00000000A78E278b2d2e2935FaeBe19ee9F1FF14);
+// Take the PMP as a constructor argument — do not hardcode one address. The
+// current contract is PMPV1, and it is not at the same address everywhere:
+// Sepolia dev runs its own instance. See reference.md for the addresses.
+IPMPV0 public immutable pmp;
+
+event PostParamSyncFailed(address indexed coreContract, uint256 indexed tokenId);
+
+constructor(address pmp_) {
+    pmp = IPMPV0(pmp_);
+}
 
 function _onTokenTransfer(
     address coreContract,
@@ -196,8 +205,11 @@ function _onTokenTransfer(
         configuredValueString: ""
     });
 
-    // Never let the PostParam write take the transfer down with it.
-    try PMP.configureTokenParams(coreContract, tokenId, inputs) {} catch {}
+    // Never let the PostParam write take the transfer down with it. Emit on
+    // failure: a silent catch makes a misconfigured param invisible.
+    try pmp.configureTokenParams(coreContract, tokenId, inputs) {} catch {
+        emit PostParamSyncFailed(coreContract, tokenId);
+    }
 }
 ```
 
@@ -212,23 +224,31 @@ control and can begin applying long after the hook is set — and an uncaught
 revert here freezes every transfer of every token in the project:
 
 - **The artist reconfigures the project's PostParams without this key.** Each
-  project configuration bumps a nonce, and PMPV0 rejects any param whose
+  project configuration bumps a nonce, and the PMP contract rejects any param whose
   `highestConfigNonce` is not the current one: *"param not part of most recently
   configured PMP params"*. This is the likely one. An artist tidying up their
   parameters months later would silently brick their own collection.
 - **The authorized address is changed, or the param's type is changed.**
   *"address auth required"*, *"paramType mismatch"*.
-- **A post-config hook is set on the project and reverts.** PMPV0 deliberately
-  propagates that rather than swallowing it.
+- **The param's lock date passes.** PMPV1 enforces `pmpLockedAfterTimestamp` as
+  a *value* lock as well as a configuration lock, so once it elapses no party
+  can write that param on any token: *"PMP: param is locked"*. Configure the
+  param you write from a hook with `pmpLockedAfterTimestamp: 0`.
+- **A post-config hook is set on the project and reverts.** PMPV0 and PMPV1
+  both deliberately propagate that rather than swallowing it.
 
 Catching means a misconfiguration costs a stale thumbnail instead of a frozen
-collection. Verify on staging that the write actually lands — a swallowed error
-is silent by design.
+collection. Emit on the catch and verify on staging that the write actually
+lands, or the failure is invisible.
+
+**You may not need to write this at all.** `MintTimeAndTransferCountHooks` is a
+deployed first-party hook that already does it — see
+[reference.md](reference.md#deployed-reference-hooks).
 
 Two more things make this viable or not:
 
 - **It is allowed.** The core blocks reentrant mints and transfers, not calls to
-  other contracts, so writing to PMPV0 during the hook goes through.
+  other contracts, so writing to the PMP contract during the hook goes through.
 - **It doubles the storage cost.** Your hook's write plus the PostParam write,
   on every transfer, for the life of the project. If the image does not actually
   depend on the transfer, do not do this.
@@ -360,3 +380,4 @@ configurable until the artist locks explicitly.
 - [templates/RestrictiveTransferHook.sol](templates/RestrictiveTransferHook.sol) — can reject a transfer
 - [Transfer Hooks docs](https://docs.artblocks.io/protocol/transfer-hooks/) — full protocol reference
 - [`OwnerHistoryTransferHook`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/engine/V3/transfer-hooks/OwnerHistoryTransferHook.sol) — deployed reference implementation
+- [`MintTimeAndTransferCountHooks`](https://github.com/ArtBlocks/artblocks-contracts/blob/main/packages/contracts/contracts/web3call/combined-hooks/MintTimeAndTransferCountHooks.sol) — deployed combined transfer + PostParams hook, and a worked example of the re-render pattern
