@@ -85,7 +85,7 @@ Skills activate automatically — just ask naturally in chat:
 | [`get-artist`](./skills/get-artist/SKILL.md) | Looking up an artist and exploring their body of work across Art Blocks |
 | [`query-artblocks-data`](./skills/query-artblocks-data/SKILL.md) | Custom GraphQL queries for data not covered by domain-specific tools (sales history, aggregations, complex joins) |
 | [`get-token-metadata`](./skills/get-token-metadata/SKILL.md) | Looking up a specific token's traits, media URLs, listing info, owner, hash, and project context |
-| [`mint-artblocks-token`](./skills/mint-artblocks-token/SKILL.md) | Minting a token — pricing, minter types, allowlists, multi-wallet eligibility, building transactions |
+| [`mint-artblocks-token`](./skills/mint-artblocks-token/SKILL.md) | Minting a token — set-price and sliding-scale ETH, minter types, allowlists, multi-wallet eligibility, building transactions |
 | [`scaffold-art-script`](./skills/scaffold-art-script/SKILL.md) | Creating or converting a generative art script for Art Blocks |
 | [`configure-postparams`](./skills/configure-postparams/SKILL.md) | Setting on-chain PostParam values on a minted token |
 | [`develop-postparam-hooks`](./skills/develop-postparam-hooks/SKILL.md) | Writing, testing, deploying, and registering custom PostParam hook contracts (augment and/or configure hooks) in Solidity |

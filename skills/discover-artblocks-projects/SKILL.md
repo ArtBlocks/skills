@@ -85,7 +85,9 @@ At least one of `artistName`, `artistSlug`, or `artistAddress` is required.
 
 ## Tool: `discover_live_mints`
 
-Returns projects currently active, unpaused, not complete, and past their start date. Ordered by most recently started. Includes minter type, pricing, supply, and artblocks.io links.
+Returns projects currently active, unpaused, not complete, and past their start date. Ordered by most recently started. Includes minter type, pricing (`minting.price` with `wei`, `display`, and `currency`), remaining supply, and artblocks.io links.
+
+Only projects whose `start_datetime` is within the last 12 months (null dates excluded) and whose minter row has a known `minter_type`. For older open mints, or projects without indexed minter metadata, use `discover_projects` with `mintable: true`.
 
 | Param     | Type   | Notes                         |
 | --------- | ------ | ----------------------------- |
